@@ -8,7 +8,7 @@ const levelMap = {
 
 function sendReminders(data) {
     const today = moment(new Date());
-    const potentials = [];
+    let potentials = [];
     const allReminders = {
         morning: [],
         noon: [],
@@ -21,22 +21,19 @@ function sendReminders(data) {
                 potentials.push(potentialItem);
             }
         });
-        let hasMessages = potentials.filter(item => item.type === "message");
-        if (hasMessages.length) {
-            const highest = findHighestLevel(hasMessages);
-            hasMessages = hasMessages.filter(item => item.level === highest);
-            const reminder = buildReminderObject(hasMessages);
-            if (candidate.lastReminderDate) {
-                const diffSinceLastReminder = today.diff(moment(candidate.lastReminderDate), "days");
-                if (diffSinceLastReminder > 1) {
-                    allReminders[findBatchTime(reminder)].push({
-                        to: reminder.to,
-                        from: reminder.from,
-                        type: reminder.type,
-                        level: reminder.level,
-                    });
-                }
-            } else {
+        let messages = potentials.filter(item => item.type === "message");
+        let itemsToFilter = [];
+        if (messages.length) {
+            itemsToFilter = messages;
+        } else {
+            itemsToFilter = potentials;
+        }
+        const highest = findHighestLevel(itemsToFilter);
+        const filteredItems = itemsToFilter.filter(item => item.level === highest);
+        const reminder = buildReminderObject(filteredItems);
+        if (candidate.lastReminderDate) {
+            const diffSinceLastReminder = today.diff(moment(candidate.lastReminderDate), "days");
+            if (diffSinceLastReminder > 1) {
                 allReminders[findBatchTime(reminder)].push({
                     to: reminder.to,
                     from: reminder.from,
@@ -45,27 +42,12 @@ function sendReminders(data) {
                 });
             }
         } else {
-            const highest = findHighestLevel(potentials);
-            const filteredByHighest = potentials.filter(item => item.level === highest);
-            const reminder = buildReminderObject(filteredByHighest);
-            if (candidate.lastReminderDate) {
-                const diffSinceLastReminder = today.diff(moment(candidate.lastReminderDate), "days");
-                if (diffSinceLastReminder > 1) {
-                    allReminders[findBatchTime(reminder)].push({
-                        to: reminder.to,
-                        from: reminder.from,
-                        type: reminder.type,
-                        level: reminder.level,
-                    });
-                }
-            } else {
-                allReminders[findBatchTime(reminder)].push({
-                    to: reminder.to,
-                    from: reminder.from,
-                    type: reminder.type,
-                    level: reminder.level,
-                });
-            }
+            allReminders[findBatchTime(reminder)].push({
+                to: reminder.to,
+                from: reminder.from,
+                type: reminder.type,
+                level: reminder.level,
+            });
         }
     });
     return allReminders;
@@ -126,7 +108,7 @@ function findPotentials(candidate, pendingItem, today) {
                 ...pendingItem,
                 level: 1,
                 candidateName: candidate.candidateName,
-            }   
+            }
         }
         if (diff >= 3 && diff <= 7) {
             return {
