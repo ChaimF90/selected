@@ -1,0 +1,24 @@
+since reminders are limited to 3 a week, once a candidate has gotten a reminder of any sort we must wait at least 
+2 days till we send another reminder. Given that reminders are not sent on Saturday or Sunday this will ensure that
+there will never be more than 3 a week. On a day where a candidate should be getting a reminder, give priority 
+to messages and give priority to higher level. If no messages, and faced with a choice of different pending invites, send the highest level.
+If there are multiple with the same level, send them in the same reminder.
+
+STEPS TO TAKE:
+
+First, is it older than at least one day?
+if it is, was a reminder already sent out for this? 
+If it has not yet had any reminders its a potential.
+if it did already have a reminder, then can it be escalated to the next level?
+if it can be then its a potential, otherwise its not.
+
+from the potentials we must filter down to just one reminder.
+if there is a message, then we have a winner.
+if we only have invites, we choose the highest level.
+When multiple invites share the same level, which happens to be the highest,
+then they are collectively the winners (which means they would get sent together as one reminder)
+
+finally we have the reminder we want to send. Now we need to make sure that at least two days have passed since the last reminder.
+If we have 2 days which have passed since last reminder, we send it out, if not we do nothing.
+
+if we have multiple messages, we must also choose the highest level. If they share the same level they should be batched.
